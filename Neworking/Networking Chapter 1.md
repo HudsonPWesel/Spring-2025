@@ -259,12 +259,74 @@ Connection between two regional ISPs (not through IXPs) is a **multi-home**
 ![[Pasted image 20250122063929.png]]
 
 ## 1.4 Delay, Loss, and Throughput in Packet-Switched Networks
+### 1.4.1 Overview of Delay in Packet-Switched Networks
+A packet moving from one destination to another experiences the following delays (together they accumulate the  **total nodal delay**)
 
+**Nodal Processing Delay**  --> Time required to inspect L3 Header and checksums and decide where to send the packet next 
 
+**Queuing Delay** --> The wait for packet to be transmitted onto the link
 
+**Transmission Delay** --> Time required to push (that is, transmit) all of the packet’s bits into the link L(size of data in bits)/R (bits/sec) (tranmission speed)
 
+**Propagation Delay** --> Time required for one bit to travel from one end of the link to the other
+dnodal = dproc + dqueue + dtrans + dprop
+*Difference between Transmission and Propagation Delay*
+The transmission delay is the amount of time required for the router to push out the packet; it is a function of the packet’s length and the transmission rate of the link, but has nothing to do with the distance between the two routers. The propagation delay, on the other hand, is the time it takes a bit to propagate from one router to the next; it is a function of the distance between the two routers, but has nothing to do with the packet’s length or the transmission rate of the link.
 
+- Link speed (transmission rate) = how fast the router can push out bits
+- Propagation speed = how fast those bits travel through the cable/fiber/medium once they've left the router
+#### 1.4.2 Queuing Delay and Packet Loss
+The ratio (a = packets/sec) L (length of packet in bits)a (rate at which packets arrive at the queue)/R (bits/sec), called the traffic intensity,
+If La/R > 1, then the average rate at which bits arrive at the queue exceeds the rate at which the bits can be transmitted from the queue. Thus it's imperative to follow this *golden rule* **Design your system so that the traffic intensity is no greater than 1**
+#### Packet Loss
+Again if the ouput queue (buffer for packets ) is full, the router will start dropping packets
 
+### 1.4.3 End-to-End Delay
+![[Pasted image 20250122075748.png]]
+
+#### Traceroute
+As these packets work their way toward the destination, they pass through a series of routers. When a router receives one of these special packets, it sends back to the source a short message that contains the name and address of the router
+Suppose there are N - 1 routers between the source and the destination. Then the source will send N special packets into the network, with each packet addressed to the ultimate destination.
+
+Traceroute actually repeats the experiment just described three times, so the source actually sends 3 • N packets to the destination.
+
+The output has six columns: the first column is the n value described above, that is, the number of the router along the route; the second column is the name of the router; the third column is the address of the router (of the form xxx.xxx.xxx.xxx); the last three columns are the round-trip delays for three experiments packet losses are marked with an asterisk
+![[Pasted image 20250122154500.png]]
+
+There are a number of free software programs that provide a graphical interface to Traceroute; one of our favorites is PingPlotter [PingPlotter 2020].
+#### End System, Application, and Other Delays
+Application Delay : An end system may purposefully delay its transmission as part of its application protocol 
+
+Packetization Delay : In VoIP, the sending side must first fill a packet with encoded digitized speech before passing the packet to the Internet
+#### 1.4.4 Throughput in Computer Networks
+If the file consists of F bits and the transfer takes T seconds for Host B to receive all F bits, then the average throughput of the file transfer is F/T bits/sec.
+Rs < Rc (bits "flow" ) at a rate of Rs bps and giving a throughput of Rs bp
+Rc < Rs, bits will only leave the router at rate Rc,  giving an end- to-end throughput of Rc
+Thus, for this simple two-link network, the throughput is min{Rc, Rs} - any additional delay
+
+![[Pasted image 20250122162333.png]]
+the constraining factor for throughput in today’s Internet is typically the access network
+## 1.5 Protocol Layers and Their Service Models
+
+### 1.5.1 Layered Architecture
+#### Protocol Layering
+![[Pasted image 20250122163230.png]]
+
+| Layer       | PDU       | Protocol Examples or Medium                                    |
+| ----------- | --------- | -------------------------------------------------------------- |
+| Application | Message   | HTTP, SMTP, FTP                                                |
+| Transport   | Segment   | TCP, UDP                                                       |
+| Network     | Datagrams | IP                                                             |
+| Link        | Frame     | Ethernet, WiFi, and the cable access network’s DOCSIS protocol |
+| Physical    | Bits      | Twisted-pair copper wire, single-mode fiber optics             |
+Data is encapsulated with its corresponding layer which is eventually sent over a medium as bits, and is then de-encapsulated
+![[Pasted image 20250122163942.png]]
+### 1.5.2 Encapsulation
+Skipped for brevity
+# 1.6 Networks Under Attack
+Skipped for brevity
+# 1.7 History of Computer Networking and the Internet
+Skipped for brevity
 
 
 SECTION 1.1
