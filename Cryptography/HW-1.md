@@ -1,11 +1,11 @@
-Section 2.8# 5, 6, 15 and 19
+## Section 2.8# 5, 6, 15 and 19
 5. Encrypt howareyou using the affine function . What is the decryption function? Check that it works
 6. encrypt messages using the affine function mod 26. Decrypt the ciphertext .
 15. ![[Pasted image 20250113120758.png]]
 For an affine cipher to be decryptable, *a* must be coprime with the modulus (in this case 30) (B is just a shift), so each encrypted letter is unique.  
 The numbers coprime to 30 are: 1, 7, 11, 13, 17, 19, 23, 29 (8 nums).
-2. 'a' and 'd'
-3. The reasoning behind this is if 10(letter1 - letter2) % 30 = 0 they will collide and both equal 0 as they're both divisible by 30 (using difference to demonstrate this relationship)
+b. 'a' and 'd'
+c. The reasoning behind this is if 10(letter1 - letter2) % 30 = 0 they will collide and both equal 0 as they're both divisible by 30 (using difference to demonstrate this relationship)
 ```bash
  ╱  ~/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs  cat affine_dups.py
  
@@ -23,7 +23,7 @@ print(dups)
 [(0, 0), (0, 3), (0, 6), (0, 9), (0, 12), (0, 15), (0, 18), (0, 21), (0, 24), (0, 27), (1, 1), (1, 4), (1, 7), (1, 10), (1, 13), (1, 16), (1, 19), (1, 22), (1, 25), (1, 28), (2, 2), (2, 5), (2, 8), (2, 11), (2, 14), (2, 17), (2, 20), (2, 23), (2, 26), (2, 29)]
 ```
 
-5. Number 19th must be done by hand and show or explain your work on each problem. ![[Pasted image 20250113120833.png]]
+Number 19th must be done by hand and show or explain your work on each problem. ![[Pasted image 20250113120833.png]]
 
 **Finding Key Length**
 ```python
@@ -85,6 +85,7 @@ for key in possible_keys:
 ```
 
 **Answer**
+*using **ab** looks like it makes the most*
 ```bash
 $ python -u "/Users/wyld7k/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs/question-19.py"
 Current Key aa
@@ -97,7 +98,8 @@ Current Key bb
 abababbbab
 ```
 
-Section 2.9# 2, 4, 9
+## Section 2.9# 2, 4, 9
+*Question 2*
 2. The following ciphertext was the output of a shift cipher: lcllewljazlnnzmvyiylhrmhza
     By performing a frequency count, guess the key used in the cipher. Use the computer to test your hypothesis. What is the decrypted plaintext? (The ciphertext is stored in the downloadable computer files (bit.ly/2JbcS6p) under the name lcll.)
 **Shift-Decryptor**
@@ -131,7 +133,7 @@ Shift Amount 7 : eveexpectseggsforbreakfast
     
 4. The following ciphertext was encrypted by an affine cipher: `edsgickxhuklzveqzvkxwkzukcvuh` . The first two letters of the plaintext are if. Decrypt.
 ![[Pasted image 20250122112512.png]]
-**Decrypt Affine**
+**Decrypt Affine script**
 ```python
 import sys
 
@@ -145,9 +147,133 @@ for char in ciphertext:
 print(res)
 ```
 
+**Answer**
 ```bash
 $ python -u "/Users/wyld7k/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs/question-4.py"
 ifyoucanreadthisthankateacher
 ```
 
-9. 
+9. Answer
+```python
+import math
+
+cipher = 'ocwyikoooniwugpmxwktzdwgtssayjzwyemdlbnqaaavsuwdvbrflauplooubfgqhgcscmgzlatoedcsdeidpbhtmuovpiekifpimfnoamvlpqfxejsmxmpgkccaykwfzpyuavtelwhrhmwkbbvgtguvtefjlodfefkvpxsgrsorvgtajbsauhzrzalkwuowhgedefnswmrciwcpaaavogpdnfpktdbalsisurlnpsjyeatcuceesohhdarkhwotikbroqrdfmzghgucebvgwcdqxgpbgqwlpbdaylooqdmuhbdqgmyweuik'
+
+general_frequencies = ["e", "t", "a", "o", "i", "n", "s", "h", "r", "d", "l",
+                       "c", "u", "m", "w", "f", "g", "y", "p", "b", "v", "k", "j", "x", "q", "z"]
+charset = 'abcdefghijklmnopqrstuvwxyz'
+res = [''] * (len(cipher))
+key = ''
+
+
+def count_chars():
+    vals = (sorted({letter: cipher.count(letter)
+                    for letter in cipher}.items(), key=lambda x: x[1], reverse=True))
+    print(vals)
+    return vals
+    # for val in vals:
+    #     print(val)
+
+
+def find_key_length(longest_key):
+    count = 0
+    space = " "
+    current_max = (0, 0)
+
+    for shift in range(1, longest_key+1):
+        count = 0
+        ct2 = shift*space+cipher
+        for i in range(0, len(cipher)):
+            if cipher[i] == ct2[i]:
+                count += 1
+        # print("Number of matches with a shift of "+str(shift)+"= "+str(count))
+        current_max = (shift, count) if count > current_max[1] else current_max
+    print(f"Max matches with key_length of {current_max[0]}")
+    return current_max[0]
+
+
+def shift_by_nth_freq_letter(nth_frequent_letter, key_length):
+    '''
+    Find which letters I"m going to shift
+    Calc shift
+    Shift perform by key size
+    Insert into correction position
+    # Given the frequency (0 = most frequent), takes all coresponding letters (0,6,12,etc) and shifts them by the difference between the nth freqnt letter in the cipher vs nth freqnt letter in the english dictinoary  
+    '''
+    letter_frequencies = count_chars()
+
+    insert_index = nth_frequent_letter
+    shift_amount = (charset.find(letter_frequencies[nth_frequent_letter][0]) -
+                    charset.find(general_frequencies[nth_frequent_letter])) % 26
+    global key
+    key += general_frequencies[nth_frequent_letter]
+
+    while insert_index < len(cipher):
+        # Could also just +
+        shifted_letter = charset[(insert_index + shift_amount) % 26]
+        # Most freq letter = a (0) - e (4) = shift = -4 # index of nth frequent letter from cipher text in charset - the index of nth frequent letter from english in charset
+        res[insert_index] = shifted_letter
+        insert_index += 6
+
+    print(f"Used Key {key}")
+    print(res)
+
+
+def decrypt():
+    # Create empty string to insert shifted chars
+
+    letter_frequencies = count_chars()
+    key_length = find_key_length(10)
+    for i in range(key_length):
+        # 0 INDEXED (most freq letter = 0)
+        shift_by_nth_freq_letter(i, key_length)
+
+    print(str.join('', res))
+
+
+# decrypt()
+
+
+def decrypt_affine(known_key):
+    '''
+   Shift each char using the known key 
+    '''
+    insert_index = key_index = 0
+    # home 7
+    while insert_index < len(cipher):
+        new_letter_index = (charset.find(
+            cipher[insert_index]) - charset.find(known_key[key_index])) % 26
+        shifted_letter = charset[new_letter_index]
+        res[insert_index] = shifted_letter
+        insert_index += 1
+        key_index = key_index + 1 if key_index + 1 < len(known_key) else 0
+    print(f"Used Key {known_key}")
+    print(res)
+    print(str.join('', res))
+
+find_key_length(12)
+decrypt_affine('holmes')
+```
+
+**Answer Revealed**
+```bash
+python -u "/Users/wyld7k/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs/question-9.py"
+Shift 1 Matches : 13
+Shift 2 Matches : 13
+Shift 3 Matches : 11
+Shift 4 Matches : 6
+Shift 5 Matches : 15
+Shift 6 Matches : 23
+Shift 7 Matches : 8
+Shift 8 Matches : 5
+Shift 9 Matches : 12
+Shift 10 Matches : 11
+Shift 11 Matches : 10
+Shift 12 Matches : 18
+
+Used Key holmes
+['h', 'o', 'l', 'm', 'e', 's', 'h', 'a', 'd', 'b', 'e', 'e', 'n', 's', 'e', 'a', 't', 'e', 'd', 'f', 'o', 'r', 's', 'o', 'm', 'e', 'h', 'o', 'u', 'r', 's', 'i', 'n', 's', 'i', 'l', 'e', 'n', 'c', 'e', 'w', 'i', 't', 'h', 'h', 'i', 's', 'l', 'o', 'n', 'g', 't', 'h', 'i', 'n', 'b', 'a', 'c', 'k', 'c', 'u', 'r', 'v', 'e', 'd', 'o', 'v', 'e', 'r', 'a', 'c', 'h', 'e', 'm', 'i', 'c', 'a', 'l', 'v', 'e', 's', 's', 'e', 'l', 'i', 'n', 'w', 'h', 'i', 'c', 'h', 'h', 'e', 'w', 'a', 's', 'b', 'r', 'e', 'w', 'i', 'n', 'g', 'a', 'p', 'a', 'r', 't', 'i', 'c', 'u', 'l', 'a', 'r', 'l', 'y', 'm', 'a', 'l', 'o', 'd', 'o', 'r', 'o', 'u', 's', 'p', 'r', 'o', 'd', 'u', 'c', 't', 'h', 'i', 's', 'h', 'e', 'a', 'd', 'w', 'a', 's', 's', 'u', 'n', 'k', 'u', 'p', 'o', 'n', 'h', 'i', 's', 'b', 'r', 'e', 'a', 's', 't', 'a', 'n', 'd', 'h', 'e', 'l', 'o', 'o', 'k', 'e', 'd', 'f', 'r', 'o', 'm', 'm', 'y', 'p', 'o', 'i', 'n', 't', 'o', 'f', 'v', 'i', 'e', 'w', 'l', 'i', 'k', 'e', 'a', 's', 't', 'r', 'a', 'n', 'g', 'e', 'l', 'a', 'n', 'k', 'b', 'i', 'r', 'd', 'w', 'i', 't', 'h', 'd', 'u', 'l', 'l', 'g', 'r', 'e', 'y', 'p', 'l', 'u', 'm', 'a', 'g', 'e', 'a', 'n', 'd', 'a', 'b', 'l', 'a', 'c', 'k', 't', 'o', 'p', 'k', 'n', 'o', 't', 's', 'o', 'w', 'a', 't', 's', 'o', 'n', 's', 'a', 'i', 'd', 'h', 'e', 's', 'u', 'd', 'd', 'e', 'n', 'l', 'y', 'y', 'o', 'u', 'd', 'o', 'n', 'o', 't', 'p', 'r', 'o', 'p', 'o', 's', 'e', 't', 'o', 'i', 'n', 'v', 'e', 's', 't', 'i', 'n', 's', 'o', 'u', 't', 'h', 'a', 'f', 'r', 'i', 'c', 'a', 'n', 's', 'e', 'c', 'u', 'r', 'i', 't', 'i', 'e', 's']
+
+holmeshadbeenseatedforsomehoursinsilencewithhislongthinbackcurvedoverachemicalvesselinwhichhewasbrewingaparticularlymalodorousproducthisheadwassunkuponhisbreastandhelookedfrommypointofviewlikeastrangelankbirdwithdullgreyplumageandablacktopknotsowatsonsaidhesuddenlyyoudonotproposetoinvestinsouthafricansecurities
+
+```

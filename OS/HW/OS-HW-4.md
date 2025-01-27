@@ -1,5 +1,4 @@
 
-
 1. Who is the owner of these two files (syslog)
 ```bash
 ubuntu@os:~$ ls -l /var/log/syslog /var/log/kern.log
