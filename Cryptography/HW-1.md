@@ -1,14 +1,128 @@
 ## Section 2.8# 5, 6, 15 and 19
-5. Encrypt howareyou using the affine function . What is the decryption function? Check that it works
-6. encrypt messages using the affine function mod 26. Decrypt the ciphertext .
-15. ![[Pasted image 20250113120758.png]]
-For an affine cipher to be decryptable, *a* must be coprime with the modulus (in this case 30) (B is just a shift), so each encrypted letter is unique.  
-The numbers coprime to 30 are: 1, 7, 11, 13, 17, 19, 23, 29 (8 nums).
-b. 'a' and 'd'
-c. The reasoning behind this is if 10(letter1 - letter2) % 30 = 0 they will collide and both equal 0 as they're both divisible by 30 (using difference to demonstrate this relationship)
+5. Encrypt howareyou using the affine function 5x + 7 (mod 26). What is the decryption function? Check that it works.
+**affine-function.py**
+```python
+charset = 'abcdefghijklmnopqrstuvwxyz'
+plaintext = 'howareyou'
+res = ''
+
+for chr in plaintext:
+    res += charset[(5 * (charset.find(chr)) + 7) % 26]
+print(res)
+```
+
+**Answer PT .1**
+
 ```bash
- ╱  ~/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs  cat affine_dups.py
- 
+$ python3 affine-function.py
+
+qznhobxzd
+```
+
+**mutliplicative_finder.py**
+```python
+import sys;
+charset='abcdefghijklmnopqrstuvwxyz'
+
+
+global multiplicative_inverse
+multiplicative_inverse=-1
+
+print(f"Usage arg1=m,arg2=mod-value,arg3=remainder-val")
+for i in range(len(charset)):
+    multiplicative_inverse = i if (int(sys.argv[1])*i)%int(sys.argv[2]) == int(sys.argv[3]) else multiplicative_inverse
+
+if multiplicative_inverse == -1:
+    print('multiplicative_inverse not found')
+print(multiplicative_inverse)
+
+```
+**Finding Decryption Function**
+
+```bash
+python3 multiplicative_finder.py 5 26 1                                                                  
+Usage arg1=m,arg2=mod-value,arg3=remainder-val
+21
+```
+
+**affine_decryptor.py**
+```python
+import sys
+charset = 'abcdefghijklmnopqrstuvwxyz'
+
+ciphertext, multiplicative_inverse = sys.argv[1], sys.argv[2] # Passing in the ciphertext AND the multiplicative inverse 
+print(ciphertext, multiplicative_inverse)
+
+plaintext = ''
+
+print("Make Sure you've defined your decript function in conjunction with the multiplicative_inverse")
+
+
+def decrypt_char(char, multiplicative_inverse):
+    return charset[(int(multiplicative_inverse) * (charset.find(char) - 7)) % 26] # predfined from 5x + 7 = y --> 5x = y - 7 --> x = 21(y - 7)
+
+
+for char in ciphertext:
+    letter = decrypt_char(char, multiplicative_inverse)
+    plaintext += letter
+    print(f"Found ClearText Letter: {letter}")
+
+
+print("plaintext=", plaintext)
+
+```
+**Answer**
+```bash
+python3 affine_cipher.py qznhobxzd 21                                                                          
+qznhobxzd 21
+Make Sure you've defined your decript function in conjunction with the multiplicative_inverse
+Found ClearText Letter: h
+Found ClearText Letter: o
+Found ClearText Letter: w
+Found ClearText Letter: a
+Found ClearText Letter: r
+Found ClearText Letter: e
+Found ClearText Letter: y
+Found ClearText Letter: o
+Found ClearText Letter: u
+plaintext= howareyou
+```
+
+
+6. **You encrypt messages using the affine function mod 26. Decrypt the ciphertext *GM***
+**Finding Decryption Function**
+*9x + 2 = y*
+*9x = y -2*
+*x = 3(y - 2)*
+
+**affine_decryptor.py**
+\<SNIP\> *means that text was removed for sake of brevity*
+```python
+<SNIP>
+
+def decrypt_char(char, multiplicative_inverse):
+    return charset[(int(multiplicative_inverse) * (charset.find(char) - 2)) % 26] # Changed function to match current problem 3(y - 2)
+
+<SNIP>
+```
+
+**Answer**
+```bash
+python3 affine_cipher.py gm 3                                                                      
+gm 3
+Make Sure you've defined your decript function in conjunction with the multiplicative_inverse
+Found ClearText Letter: m
+Found ClearText Letter: e
+plaintext= me
+```
+15. 
+	a. For an affine cipher to be precisely decryptable, *a* must be coprime with the modulus (in this case 30) (B is just a shift), so each encrypted letter is unique. The numbers coprime to 30 are: 1, 7, 11, 13, 17, 19, 23, 29 (8 nums).
+	b. 'a' and 'd'
+		c. The reasoning behind this is if 10(letter1 - letter2) % 30 = 0 they will collide and both equal 0 as they're both divisible by 30 (using difference to demonstrate this relationship)
+**affine_dups.py**
+```python
+$ cat affine_dups.py
+
 import sys
 dups = []
 
@@ -16,16 +130,20 @@ for i in range(int(sys.argv[1])):
     for j in range(int(sys.argv[1])):
         if not((int(sys.argv[2]) * i ) - (int(sys.argv[2]) * j) % 30) :
             dups.append((i,j))
-
 print(dups)
-  ╱  ~/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs  python3 affine_dups.py 30 10
+
+```
+
+**Answer**
+```bash
+$ python3 affine_dups.py 30 10
  
 [(0, 0), (0, 3), (0, 6), (0, 9), (0, 12), (0, 15), (0, 18), (0, 21), (0, 24), (0, 27), (1, 1), (1, 4), (1, 7), (1, 10), (1, 13), (1, 16), (1, 19), (1, 22), (1, 25), (1, 28), (2, 2), (2, 5), (2, 8), (2, 11), (2, 14), (2, 17), (2, 20), (2, 23), (2, 26), (2, 29)]
 ```
 
-Number 19th must be done by hand and show or explain your work on each problem. ![[Pasted image 20250113120833.png]]
-
-**Finding Key Length**
+19. *Suppose there is a language that has only the letters and . The frequency of the letter is .1 and the frequency of is .9. A message is encrypted using a Vigenère cipher (working mod 2 instead of mod 26). The ciphertext is BABABAAABA. The key length is 1, 2, or 3.*
+a. )
+**key-length-finder.py**
 ```python
 '''
 Find Key Length
@@ -51,7 +169,7 @@ def find_key_length(longest_key):
 find_key_length(3)
 ```
 
-**Finding Key Length**
+**Answer**
 ```bash
 $ python -u "/Users/wyld7k/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/Labs/question-19.py"
 
@@ -60,6 +178,7 @@ Number of matches with a shift of 2= 6
 Number of matches with a shift of 3= 2
 Max matches with key_length of 2
 ```
+
 **Finding Key**
 ```python
 '''
@@ -102,9 +221,9 @@ abababbbab
 *Question 2*
 2. The following ciphertext was the output of a shift cipher: lcllewljazlnnzmvyiylhrmhza
     By performing a frequency count, guess the key used in the cipher. Use the computer to test your hypothesis. What is the decrypted plaintext? (The ciphertext is stored in the downloadable computer files (bit.ly/2JbcS6p) under the name lcll.)
-**Shift-Decryptor**
+**shift-decryptor.py**
 ```bash
-$ cat question-2.py
+$ cat shift-decryptor.py
 import sys
 
 charset = 'abcdefghijklmnopqrstuvwxyz'
@@ -133,7 +252,7 @@ Shift Amount 7 : eveexpectseggsforbreakfast
     
 4. The following ciphertext was encrypted by an affine cipher: `edsgickxhuklzveqzvkxwkzukcvuh` . The first two letters of the plaintext are if. Decrypt.
 ![[Pasted image 20250122112512.png]]
-**Decrypt Affine script**
+**affine-decryptor.py**
 ```python
 import sys
 
@@ -153,7 +272,15 @@ $ python -u "/Users/wyld7k/Desktop/HPU-Files/Classes/Spring-2025/Cryptography/La
 ifyoucanreadthisthankateacher
 ```
 
-9. Answer
+**crunch**
+*This will generate all combos of chars with len of 6*
+```bash
+crunch 6 6 -t @@@@@@ | tee -a all-char-combos.txt
+<SNIP>
+holmes
+<SNIP>
+```
+**vigenere-decryptor.py**
 ```python
 import math
 
@@ -251,8 +378,8 @@ def decrypt_affine(known_key):
     print(res)
     print(str.join('', res))
 
-find_key_length(12)
-decrypt_affine('holmes')
+find_key_length(12) # Finds key length
+decrypt_affine('holmes') # Decrypts
 ```
 
 **Answer Revealed**

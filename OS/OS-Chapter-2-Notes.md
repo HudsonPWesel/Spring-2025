@@ -10,6 +10,8 @@ Depending on the syscall there may need to be additional params. There are three
 -  Params are stored on the stack
 ![[Pasted image 20250121103852.png]]
 
+*Types of Syscalls*
+
 **• Process control**
 	◦ create process, terminate process
 	◦ load, execute
@@ -39,13 +41,17 @@ Depending on the syscall there may need to be additional params. There are three
 ![[Pasted image 20250121104401.png]]
 
 **If two processes want to share data the OS will lock it to ensure no other process can access the data**
-
 Aurdino is a single-tasking system where only one sketch (pre-compiled program) can be and loaded onto it at one time via the bootloader.
 
-## 2.4 _System Services
+## 2.4 System Services
+System services sit in-between Apps and the OS
 
-Linker -> After C files are compiled into O files, the linker links those object files, with C library files to create on binary executable. After everything is linked the loader loads the object into memory
+## 2.5 Linker & Loaders
+Linker -> After C files are compiled into O files, the linker links those object files (relocatable object files), with C library files to create on binary executable. After everything is linked the loader loads the object into memory
 DLLs Instead, the library is conditionally linked and is loaded if it is required during program run time.
 
-get/set_num_threads()
-get_thread_num()
+Loader -> Load executable into memory
+![[Pasted image 20250128100511.png]]
+
+### 2.6 _Why Applications Are Operating-System Specific_
+each operating system provides a unique set of system calls
